@@ -1,33 +1,58 @@
-.title{
-    text-align: center;
-    margin-top: 25px;
-
-}
-
-.form{
-    margin:auto;
-    max-width: 400px;
-    text-align: center;
-}
-
-input[ type='submit'], button, [aria-label]{
-    cursor: pointer;
-}
-
-#edit-box{
-    display: none;
-    max-width: 80%;
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f4f8;
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 700px;
     margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #ccc;
+  }
+  
+  input, select, button {
+    margin: 5px;
+    padding: 8px;
+  }
+  
+  table {
+    width: 100%;
     margin-top: 10px;
-}
-
-td{
-    background-color: aliceblue;
-    padding-right: 10px;
-    text-align: left;
-    margin: auto;
-}
-
-.to-do{
-    background: transparent !important;
-}
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+  }
+  
+  .chatbot {
+    display: none;
+    margin-top: 20px;
+    background: #e9f1fb;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  
+  .chatbot.open {
+    display: block;
+  }
+  
+  .user, .bot {
+    margin: 5px 0;
+  }
+  button {
+    cursor: pointer;
+  }
+  
+  button:focus {
+    outline: none;
+  }
+  
+  button:hover {
+    background-color: #ddd;
+  }
+  
