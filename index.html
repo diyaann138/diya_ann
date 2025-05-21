@@ -10,16 +10,17 @@
     <h1>📝 My To-Do List</h1>
 
     <div style="display: flex; align-items: center; gap: 8px;">
-        <input id="add-todo" type="text" placeholder="Enter a task" />
-        <button onclick="startVoiceInput()">🎤</button>
-        <select id="priority">
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-        <button onclick="app.Add()">Add</button>
-      </div>
-      
+  <input id="add-todo" type="text" placeholder="Enter a task" />
+  <button onclick="startVoiceInput()">🎤</button>
+  <select id="priority">
+    <option value="Low">Low</option>
+    <option value="Medium">Medium</option>
+    <option value="High">High</option>
+  </select>
+  <button onclick="app.Add()">Add</button>
+
+</div>
+
 
     <table>
       <thead><tr><th>Task</th><th>Priority</th><th>Edit</th><th>Delete</th></tr></thead>
@@ -41,7 +42,9 @@
     </div>
 
     <button id="open-chatbot">Open Chatbot</button>
-    <button id="speak-btn" class="btn btn-secondary">🎙 Speak</button>
+    
+
+
     <div id="chatbot-panel" class="chatbot">
       <button id="close-chatbot">Close</button>
       <div id="chat-messages"></div>
@@ -49,9 +52,9 @@
       <button onclick="sendMessage()">Send</button>
     </div>
   </div>
-  
+
   <script src="app.js"></script>
   <script src="chatbot.js"></script>
-  
 </body>
 </html>
+
