@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Voice & Text To-Do List</title>
+<style>
+   body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 30px;
+      background: #f4f6f8;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    input[type="text"] {
+      width: 65%;
+    }
+    button {
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      margin-left: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .priority-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+    }
+    .high {
+      background-color: #dc3545;
+    }
+    .medium {
+      background-color: #fd7e14;
+    }
+    .low {
+      background-color: #28a745;
+    }
+ 
+</style>
+
+</head>
+<body>
+
+<h1>📝 To-Do List</h1>
+
+<div>
+  <input type="text" id="command-input" placeholder="Type command (add, delete, edit)..." style="width: 70%;" />
+  <button onclick="processTypedCommand()">Send</button>
+  <button onclick="startVoiceInput()">🎤 Speak</button>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Task</th><th>Priority</th><th>Edit</th><th>Delete</th></tr>
+  </thead>
+  <tbody id="tasks"></tbody>
+
+</table>
+<script>let tasks = [];
+
+  function capitalizePriority(p) {
+    if (!p) return 'Low';
+    p = p.toLowerCase();
+    if (['high', 'medium', 'low'].includes(p)) {
+      return p.charAt(0).toUpperCase() + p.slice(1);
+    }
+    return 'Low';
+  }
+
+  function renderTasks() {
+    const tbody = document.getElementById("tasks");
+    tbody.innerHTML = "";
+    tasks.forEach((task, i) => {
+      const tr = document.createElement("tr");
+
+      // Task Name cell
+      const taskCell = document.createElement("td");
+      taskCell.textContent = task.name;
+
+      // Priority cell with color class
+      const priorityCell = document.createElement("td");
+      priorityCell.textContent = task.priority;
+      priorityCell.className = task.priority.toLowerCase();
+
+      // Edit button cell
+      const editCell = document.createElement("td");
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "Edit";
+      editBtn.onclick = () => promptEdit(i);
+      editCell.appendChild(editBtn);
+
+      // Delete button cell
+      const deleteCell = document.createElement("td");
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "Delete";
+      delBtn.onclick = () => {
+        deleteTask(i);
+      };
+      deleteCell.appendChild(delBtn);
+
+      // Append cells to row
+      tr.appendChild(taskCell);
+      tr.appendChild(priorityCell);
+      tr.appendChild(editCell);
+      tr.appendChild(deleteCell);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function addTask(name, priority = "Low") {
+    tasks.push({ name, priority: capitalizePriority(priority) });
+    renderTasks();
+  }
+
+  function deleteTask(index) {
+    tasks.splice(index, 1);
+    renderTasks();
+  }
+
+  function editTask(index, newName, newPriority) {
+    tasks[index].name = newName;
+    tasks[index].priority = capitalizePriority(newPriority);
+    renderTasks();
+  }
+
+  function promptEdit(index) {
+    const current = tasks[index];
+    const newName = prompt("Edit task name:", current.name);
+    const newPriority = prompt("Edit priority (High/Medium/Low):", current.priority);
+    if (newName) {
+      editTask(index, newName.trim(), newPriority ? newPriority.trim() : current.priority);
+    }
+  }
+
+  function handleVoiceCommand(command) {
+    command = command.toLowerCase().trim();
+    const priorities = ["high", "medium", "low"];
+    let priority = "Low";
+
+    // ADD
+    if (command.startsWith("add ")) {
+      for (let level of priorities) {
+        if (command.includes(`${level} priority`)) {
+          priority = capitalizePriority(level);
+          command = command.replace(`with ${level} priority`, "").replace(`${level} priority`, "");
+          break;
+        }
+      }
+      const taskName = command.replace("add", "").trim();
+      if (taskName) {
+        addTask(taskName, priority);
+        alert(`Added: "${taskName}" [${priority}]`);
+      }
+
+    // DELETE
+    } else if (command.startsWith("delete ")) {
+      const taskName = command.replace("delete", "").trim();
+      const index = tasks.findIndex(t => t.name.toLowerCase() === taskName.toLowerCase());
+      if (index !== -1) {
+        deleteTask(index);
+        alert(`Deleted: "${taskName}"`);
+      } else {
+        alert(`Task "${taskName}" not found.`);
+      }
+
+    // EDIT
+    } else if (command.startsWith("edit ")) {
+      const match = command.match(/^edit (.+?) to (.+)$/i);
+      if (!match) {
+        alert("Say: 'Edit [old task] to [new task] [priority]'");
+        return;
+      }
+      let oldName = match[1].trim();
+      let newPart = match[2].trim();
+
+      let newPriority = "Low";
+      for (let level of priorities) {
+        if (newPart.includes(`${level} priority`)) {
+          newPriority = capitalizePriority(level);
+          newPart = newPart.replace(`with ${level} priority`, "").replace(`${level} priority`, "").trim();
+          break;
+        }
+      }
+
+      const newName = newPart.trim();
+      const index = tasks.findIndex(t => t.name.toLowerCase() === oldName.toLowerCase());
+      if (index !== -1) {
+        editTask(index, newName, newPriority);
+        alert(`Edited: "${oldName}" → "${newName}" [${newPriority}]`);
+      } else {
+        alert(`Task "${oldName}" not found.`);
+      }
+
+    } else {
+      alert("Commands: 'add [task] [priority]', 'delete [task]', 'edit [old task] to [new task] [priority]'");
+    }
+  }
+
+  function startVoiceInput() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech Recognition not supported in this browser.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.start();
+
+    recognition.onresult = (event) => {
+      const command = event.results[0][0].transcript;
+      console.log("Voice input:", command);
+      handleVoiceCommand(command);
+    };
+
+    recognition.onerror = (event) => {
+      alert("Voice recognition error: " + event.error);
+    };
+  }
+
+  function processTypedCommand() {
+    const input = document.getElementById("command-input");
+    const command = input.value.trim();
+    if (command) {
+      handleVoiceCommand(command);
+      input.value = "";
+    }
+  }
+
+</script>
+</body>
+</html>
